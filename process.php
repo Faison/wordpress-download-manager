@@ -22,7 +22,7 @@ else {
 }
 
 if(is_array($data)){   
-    if($data['access']=='member'&&!is_user_logged_in()) {
+    if(wpdm_does_user_need_to_login($data['access'])) {
         header("location: wp-login.php?redirect_to=".urlencode($_SERVER['REQUEST_URI']));
         die();
     }

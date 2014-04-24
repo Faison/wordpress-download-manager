@@ -177,7 +177,7 @@ function wpdm_downloadable_nsc($params){
     else  $template = "wpdm-{$template}";
     $wpdm_login_msg = get_option('wpdm_login_msg')?get_option('wpdm_login_msg'):'Login Required';
     $link_label = $data['link_label']?$data['link_label']:'Download';
-    if($data['access']=='member'&&!is_user_logged_in()){    
+    if(wpdm_does_user_need_to_login($data['access'])){    
     $url = get_option('siteurl')."/wp-login.php?redirect_to=".$_SERVER['REQUEST_URI'];
     $uuid = uniqid();
     /*$args = array(
@@ -235,7 +235,7 @@ function wpdm_downloadable($content){
     $data['title'] = stripcslashes($data['title']);  
     $wpdm_login_msg = get_option('wpdm_login_msg')?get_option('wpdm_login_msg'):'Login Required';
     $link_label = $data['link_label']?$data['link_label']:'Download';
-    if($data['access']=='member'&&!is_user_logged_in())
+    if(wpdm_does_user_need_to_login($data['access']))
     $matches[1][$i] = "<a href='".get_option('siteurl')."/wp-login.php?redirect_to=".$_SERVER['REQUEST_URI']."'  style=\"background:url('".get_option('siteurl')."/wp-content/plugins/download-manager/l24.png') no-repeat;padding:3px 12px 12px 28px;font:bold 10pt verdana;\">".$wpdm_login_msg."</a>";
     else {
     if($data['password']=='') { $url = home_url('/?wpdmact=process&did='.base64_encode($id.'.hotlink')); $classrel = ""; }
@@ -379,7 +379,7 @@ if(!isset($_GET['task'])||$_GET['task']!='wpdm_tree')     return;
                         //foreach( $data as $ind=>$val ) $reps["[".$ind."]"] = $val;
                         //$repeater =  stripslashes( strtr( $category['template_repeater'],   $reps ));  
                         $template = "<li class=\"wpdm_clink file ext_$ext\">$data[page_link]</li>";
-                        if($data['access']=='member'&&!is_user_logged_in())
+                        if(wpdm_does_user_need_to_login($data['access']))
                         $template = "<li  class=\"file ext_$ext\"><a href='".get_option('siteurl')."/wp-login.php?redirect_to=".$_SERVER['REQUEST_URI']."' >{$data['title']}<small> (login to download)</small></a></li>";
                         $html .= $template;
                         
@@ -634,7 +634,7 @@ foreach($ndata as $data){
             //foreach( $data as $ind=>$val ) $reps["[".$ind."]"] = $val;
             //$repeater =  stripslashes( strtr( $category['template_repeater'],   $reps ));  
             $template = "<li><div class='wpdm_clink' style='{$bg}'><b>$data[page_link]</b><br/><small>$data[counter]</small></div></li>";
-            if($data['access']=='member'&&!is_user_logged_in())
+            if(wpdm_does_user_need_to_login($data['access']))
             $template = "<li><div class='wpdm_clink' style='{$bg}'><a href='".get_option('siteurl')."/wp-login.php?redirect_to=".$_SERVER['REQUEST_URI']."' >$data[title]</a></b><br/><small>login to download</small></div></li>";
             $html .= $template;
           
@@ -705,7 +705,7 @@ function wpdm_embed_category_sc($params){
         //foreach( $data as $ind=>$val ) $reps["[".$ind."]"] = $val;
         //$repeater =  stripslashes( strtr( $category['template_repeater'],   $reps ));
         $template = "<li><div class='wpdm_clink' style='{$bg}'><b>$data[page_link]</b><br/><small>$data[counter]</small></div></li>";
-        if($data['access']=='member'&&!is_user_logged_in())
+        if(wpdm_does_user_need_to_login($data['access']))
             $template = "<li><div class='wpdm_clink' style='{$bg}'><a href='".get_option('siteurl')."/wp-login.php?redirect_to=".$_SERVER['REQUEST_URI']."' >$data[title]</a></b><br/><small>login to download</small></div></li>";
         $html .= $template;
 
@@ -1052,3 +1052,9 @@ add_action("init","wpdm_dir_tree");
 include("wpdm-widgets.php");
 
 register_activation_hook(__FILE__,'wpdm_free_install');
+
+function wpdm_does_user_need_to_login( $access ){
+   $user_needs_to_login = $access=='member'&&!is_user_logged_in();
+   $user_needs_to_login = apply_filters( 'wpdm_does_user_need_to_login', $user_needs_to_login );
+   return $user_needs_to_login;
+}
