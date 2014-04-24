@@ -1,7 +1,7 @@
 <?php 
 /*
 Plugin Name: Download Manager
-Plugin URI: http://www.wpdownloadmanager.com/
+Plugin URI: https://github.com/Faison/wordpress-download-manager
 Description: Manage, track and control file download from your wordpress site
 Author: Shaon
 Version: 2.6.1
@@ -178,7 +178,7 @@ function wpdm_downloadable_nsc($params){
     $wpdm_login_msg = get_option('wpdm_login_msg')?get_option('wpdm_login_msg'):'Login Required';
     $link_label = $data['link_label']?$data['link_label']:'Download';
     if(wpdm_does_user_need_to_login($data['access'])){    
-    $url = get_option('siteurl')."/wp-login.php?redirect_to=".$_SERVER['REQUEST_URI'];
+    $url = wpdm_get_login_url()."?redirect_to=".$_SERVER['REQUEST_URI'];
     $uuid = uniqid();
     /*$args = array(
         'echo' => false,
@@ -236,7 +236,7 @@ function wpdm_downloadable($content){
     $wpdm_login_msg = get_option('wpdm_login_msg')?get_option('wpdm_login_msg'):'Login Required';
     $link_label = $data['link_label']?$data['link_label']:'Download';
     if(wpdm_does_user_need_to_login($data['access']))
-    $matches[1][$i] = "<a href='".get_option('siteurl')."/wp-login.php?redirect_to=".$_SERVER['REQUEST_URI']."'  style=\"background:url('".get_option('siteurl')."/wp-content/plugins/download-manager/l24.png') no-repeat;padding:3px 12px 12px 28px;font:bold 10pt verdana;\">".$wpdm_login_msg."</a>";
+    $matches[1][$i] = "<a href='".wpdm_get_login_url()."?redirect_to=".$_SERVER['REQUEST_URI']."'  style=\"background:url('".get_option('siteurl')."/wp-content/plugins/download-manager/l24.png') no-repeat;padding:3px 12px 12px 28px;font:bold 10pt verdana;\">".$wpdm_login_msg."</a>";
     else {
     if($data['password']=='') { $url = home_url('/?wpdmact=process&did='.base64_encode($id.'.hotlink')); $classrel = ""; }
     else { $url = home_url('/?download='.$id);  $classrel = " class='wpdm-popup' rel='colorbox' "; }
@@ -380,7 +380,7 @@ if(!isset($_GET['task'])||$_GET['task']!='wpdm_tree')     return;
                         //$repeater =  stripslashes( strtr( $category['template_repeater'],   $reps ));  
                         $template = "<li class=\"wpdm_clink file ext_$ext\">$data[page_link]</li>";
                         if(wpdm_does_user_need_to_login($data['access']))
-                        $template = "<li  class=\"file ext_$ext\"><a href='".get_option('siteurl')."/wp-login.php?redirect_to=".$_SERVER['REQUEST_URI']."' >{$data['title']}<small> (login to download)</small></a></li>";
+                        $template = "<li  class=\"file ext_$ext\"><a href='".wpdm_get_login_url()."?redirect_to=".$_SERVER['REQUEST_URI']."' >{$data['title']}<small> (login to download)</small></a></li>";
                         $html .= $template;
                         
                       
@@ -635,7 +635,7 @@ foreach($ndata as $data){
             //$repeater =  stripslashes( strtr( $category['template_repeater'],   $reps ));  
             $template = "<li><div class='wpdm_clink' style='{$bg}'><b>$data[page_link]</b><br/><small>$data[counter]</small></div></li>";
             if(wpdm_does_user_need_to_login($data['access']))
-            $template = "<li><div class='wpdm_clink' style='{$bg}'><a href='".get_option('siteurl')."/wp-login.php?redirect_to=".$_SERVER['REQUEST_URI']."' >$data[title]</a></b><br/><small>login to download</small></div></li>";
+            $template = "<li><div class='wpdm_clink' style='{$bg}'><a href='".wpdm_get_login_url()."?redirect_to=".$_SERVER['REQUEST_URI']."' >$data[title]</a></b><br/><small>login to download</small></div></li>";
             $html .= $template;
           
             
@@ -706,7 +706,7 @@ function wpdm_embed_category_sc($params){
         //$repeater =  stripslashes( strtr( $category['template_repeater'],   $reps ));
         $template = "<li><div class='wpdm_clink' style='{$bg}'><b>$data[page_link]</b><br/><small>$data[counter]</small></div></li>";
         if(wpdm_does_user_need_to_login($data['access']))
-            $template = "<li><div class='wpdm_clink' style='{$bg}'><a href='".get_option('siteurl')."/wp-login.php?redirect_to=".$_SERVER['REQUEST_URI']."' >$data[title]</a></b><br/><small>login to download</small></div></li>";
+            $template = "<li><div class='wpdm_clink' style='{$bg}'><a href='".wpdm_get_login_url()."?redirect_to=".$_SERVER['REQUEST_URI']."' >$data[title]</a></b><br/><small>login to download</small></div></li>";
         $html .= $template;
 
 
@@ -1057,4 +1057,9 @@ function wpdm_does_user_need_to_login( $access ){
    $user_needs_to_login = $access=='member'&&!is_user_logged_in();
    $user_needs_to_login = apply_filters( 'wpdm_does_user_need_to_login', $user_needs_to_login );
    return $user_needs_to_login;
+}
+
+function wpdm_get_login_url(){
+   $url = apply_filters( 'wpdm_login_url', get_option('siteurl') . '/wp-login.php' );
+   return $url;
 }

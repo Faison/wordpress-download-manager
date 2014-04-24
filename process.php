@@ -23,7 +23,7 @@ else {
 
 if(is_array($data)){   
     if(wpdm_does_user_need_to_login($data['access'])) {
-        header("location: wp-login.php?redirect_to=".urlencode($_SERVER['REQUEST_URI']));
+        header("location: ".wpdm_get_login_url()."?redirect_to=".urlencode($_SERVER['REQUEST_URI']));
         die();
     }
     $_GET['did'] = sanitize_file_name($_GET['did']);
